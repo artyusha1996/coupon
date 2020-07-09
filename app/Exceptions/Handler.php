@@ -2,7 +2,14 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -50,6 +57,51 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        return parent::render($request, $exception);
+        $httpCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        $statusCode =  $exception->getCode();
+        $details = [
+            'message' => $exception->getMessage(),
+        ];
+
+        if ($exception instanceof NotFoundHttpException) {
+            $httpCode = Response::HTTP_NOT_FOUND;
+            $statusCode = Response::HTTP_NOT_FOUND;
+            $details['message'] = 'Not found';
+        }
+
+        if ($exception instanceof BadRequestException || $exception instanceof BadRequestHttpException) {
+            $httpCode = Response::HTTP_BAD_REQUEST;
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            $details['message'] = 'Bad Request';
+        }
+
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            $httpCode = Response::HTTP_METHOD_NOT_ALLOWED;
+            $statusCode = Response::HTTP_METHOD_NOT_ALLOWED;
+            $details['message'] = 'Method Not Allowed';
+        }
+
+        if ($exception instanceof ValidationException) {
+            $details['errors'] = $exception->errors();
+        }
+
+        if ($exception instanceof AuthorizationException) {
+            $httpCode = Response::HTTP_UNAUTHORIZED;
+            $statusCode = Response::HTTP_UNAUTHORIZED;
+            $details['message'] = 'Unauthorized';
+        }
+
+        $data = [
+            'status'  => $statusCode,
+            'details' => $details,
+        ];
+
+        if ($httpCode === Response::HTTP_INTERNAL_SERVER_ERROR && !config('app.debug')) {
+            $data['details'] = [
+                'message' => 'Server error',
+            ];
+        }
+
+        return response()->json($data, $httpCode);
     }
 }
