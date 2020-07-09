@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Events\CouponCreatedEvent;
 use App\Models\Coupon;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use App\Services\ThirdParty\CouponService as CouponThirdPartService;
@@ -22,6 +23,7 @@ class CouponService
     const STATUS_NEW = 'new';
     const STATUS_USED = 'used';
     const STATUS_REJECTED = 'rejected';
+    const RETRY_DATE_AFTER_CREATION_IN_MINUTES = 15;
 
     const STATUSES_CAN_BE_REGISTERED = [
         self::STATUS_NEW,
@@ -105,5 +107,19 @@ class CouponService
         event(new CouponCreatedEvent($coupon));
 
         return $coupon;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCouponsWillBeRetried()
+    {
+        return Coupon::whereDate(
+                'created_at',
+                '<',
+                Carbon::now()->subMinutes(self::RETRY_DATE_AFTER_CREATION_IN_MINUTES)
+            )
+            ->where('status', self::STATUS_NEW)
+            ->get();
     }
 }

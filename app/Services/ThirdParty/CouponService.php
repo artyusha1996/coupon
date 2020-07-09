@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
  */
 class CouponService
 {
-    public function register(string $code)
+    public function register(string $param)
     {
         $codes = ['200 Success',  '400 Bad Request',  '500 Internal Server Error'];
         $code = $codes[array_rand($codes)];
