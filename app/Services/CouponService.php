@@ -60,6 +60,7 @@ class CouponService
      */
     public function publish(Coupon $coupon)
     {
+        $coupon->refresh();
         if (!in_array($coupon->status, self::STATUSES_CAN_BE_REGISTERED)) {
             throw new BadRequestException();
         }
