@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Coupon
  * @package App\Models
+ * @property integer $id
  * @property string $code
  * @property string $status
  * @property string $owner

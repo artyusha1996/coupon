@@ -1,3 +1,9 @@
+## Instructions
+- Need to add queue connection QUEUE_CONNECTION in env file(redis, database, etc)
+- Front end should subscribe to channel (socket io, etc)
+
+
+
 <p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
 
 <p align="center">

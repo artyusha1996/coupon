@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Events\CouponCreatedEvent;
+use App\Events\CouponStatusChangedEvent;
 use App\Listeners\CouponPublishListener;
+use App\Listeners\CouponStatusChangedListener;
+use App\Models\Coupon;
+use App\Observer\CouponObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,6 +26,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CouponCreatedEvent::class => [
             CouponPublishListener::class,
+        ],
+        CouponStatusChangedEvent::class => [
+            CouponStatusChangedListener::class,
         ]
     ];
 
@@ -34,6 +41,6 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        Coupon::observe(CouponObserver::class);
     }
 }
