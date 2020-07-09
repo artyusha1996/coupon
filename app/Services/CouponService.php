@@ -109,18 +109,4 @@ class CouponService
 
         return $coupon;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getCouponsWillBeRetried()
-    {
-        return Coupon::whereDate(
-                'created_at',
-                '<',
-                Carbon::now()->subMinutes(self::RETRY_DATE_AFTER_CREATION_IN_MINUTES)
-            )
-            ->where('status', self::STATUS_NEW)
-            ->get();
-    }
 }
